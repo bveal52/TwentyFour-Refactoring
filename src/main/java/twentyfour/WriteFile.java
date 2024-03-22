@@ -10,10 +10,9 @@ public class WriteFile {
 
 	private String directoryName = "datafiles";
 	private BufferedWriter writer;
-	private int magicNumber = 0;
-	private int numberOfIntegers;
-	private int startingAt;
-	private int endingAt;
+
+	private Parameter params;
+
 	private String baseFileName = "Solutions";
 	private String extension = ".txt";
 	public static ArrayList<String> fileTable = new ArrayList<String>(); // List to reach for in post-run validations
@@ -21,10 +20,7 @@ public class WriteFile {
 	private String fullFileName;
 	
 	public WriteFile(int magicNumber, int numberOfIntegers, int startingAt, int endingAt) {
-		this.magicNumber = magicNumber;
-		this.numberOfIntegers = numberOfIntegers;
-		this.startingAt = startingAt;
-		this.endingAt = endingAt;
+		params = new Parameter(magicNumber, numberOfIntegers, startingAt, endingAt);
 	}
 	
 	public void openFile() {
@@ -34,7 +30,7 @@ public class WriteFile {
 		} else {
 			debugInfo = "";
 		}
-		String fileName = baseFileName+magicNumber+debugInfo+"for"+numberOfIntegers+"from"+startingAt+"to"+endingAt;
+		String fileName = baseFileName+params.getMagicNumber()+debugInfo+"for"+params.getNumberOfIntegers()+"from"+params.getStartingAt()+"to"+params.getEndingAt();
 		int appendix = returnNextFileNameAppendix(fileName);
 		fullFileName = directoryName+"/"+fileName+"-"+appendix+extension;
 		try {
@@ -45,7 +41,7 @@ public class WriteFile {
 			System.exit(1);
 		}
 		try {
-			writer.write("Solutions for magic number "+magicNumber+"\n");
+			writer.write("Solutions for magic number "+params.getMagicNumber()+"\n");
 		} catch (IOException e) {
 			System.out.println(">> Error writing to file"+completeErrorMessage());
 			e.printStackTrace();
