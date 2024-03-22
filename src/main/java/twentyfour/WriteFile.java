@@ -125,5 +125,10 @@ public class WriteFile {
 		}
 	}
 
+
+	public String getFullFileName() {
+		return fullFileName;
+	}
+
 	
 }
