@@ -11,17 +11,24 @@ public class WriteFile {
 	private String directoryName = "datafiles";
 	private BufferedWriter writer;
 
-	private Parameter params;
+	//FIXED CODE SMELL - Primitive Obsession
+	private GameParameter gameParams;
+
+	//END CODE SMELL
 
 	private String baseFileName = "Solutions";
 	private String extension = ".txt";
 	public static ArrayList<String> fileTable = new ArrayList<String>(); // List to reach for in post-run validations
 	public static int fileIndex = 0;
 	private String fullFileName;
-	
-	public WriteFile(int magicNumber, int numberOfIntegers, int startingAt, int endingAt) {
-		params = new Parameter(magicNumber, numberOfIntegers, startingAt, endingAt);
+
+	//FIXED CODE SMELL - Long Parameter List
+
+	public WriteFile(GameParameter gameParams) {
+		this.gameParams = gameParams;
 	}
+
+	//END CODE SMELL
 	
 	public void openFile() {
 		String debugInfo;
@@ -30,7 +37,7 @@ public class WriteFile {
 		} else {
 			debugInfo = "";
 		}
-		String fileName = baseFileName+params.getMagicNumber()+debugInfo+"for"+params.getNumberOfIntegers()+"from"+params.getStartingAt()+"to"+params.getEndingAt();
+		String fileName = baseFileName+gameParams.getMagicNumber()+debugInfo+"for"+gameParams.getNumberOfIntegers()+"from"+gameParams.getStartingAt()+"to"+gameParams.getEndingAt();
 		int appendix = returnNextFileNameAppendix(fileName);
 		fullFileName = directoryName+"/"+fileName+"-"+appendix+extension;
 		try {
@@ -41,7 +48,7 @@ public class WriteFile {
 			System.exit(1);
 		}
 		try {
-			writer.write("Solutions for magic number "+params.getMagicNumber()+"\n");
+			writer.write("Solutions for magic number "+gameParams.getMagicNumber()+"\n");
 		} catch (IOException e) {
 			System.out.println(">> Error writing to file"+completeErrorMessage());
 			e.printStackTrace();

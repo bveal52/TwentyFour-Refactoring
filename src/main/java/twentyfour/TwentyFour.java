@@ -115,7 +115,7 @@ public class TwentyFour {
 		Timing.startRun();
 		TwentyFour myGame = new TwentyFour();
 		if (!myGame.validateParameters()) System.exit(1); // see if parameters make sense
-		myGame.writeFile = new WriteFile(myGame.magicNumber, myGame.numberOfIntegers, myGame.startingAt, myGame.endingAt);
+		myGame.writeFile = new WriteFile(new GameParameter(myGame.magicNumber, myGame.numberOfIntegers, myGame.startingAt, myGame.endingAt));
 		myGame.writeFile.openFile();
 		myGame.runGame();
 		String closingMessage = Timing.reportTime("Total time", "")+"\n";

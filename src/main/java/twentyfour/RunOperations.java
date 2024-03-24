@@ -77,13 +77,9 @@ public class RunOperations {
 				}
 				if (workingList.size() == 0) { // This is the final operation
 					if (Math.abs(myOps.answer-magicNumber) < closeToInteger) { // we have a correct answer
-						ArrayList<Float> operands = new ArrayList<Float>();
-						operands.add(a);
-						operands.add(b);
-						results.add(new Result(operands,i,myOps.answer));
-						saveAResult(results);
-						results.remove(results.size()-1);
-						solutionCount++;
+						//FIXED CODE SMELL - Extract Method
+						saveAndIncrementCorrectAnswer(a, b, results, i, myOps);
+						//END CODE SMELL
 					} else { // a wrong answer
 //						results.add("Wrong answer");
 //						printAResult(results);
@@ -91,14 +87,9 @@ public class RunOperations {
 					}
 				} else { // we're not done yet, trying this combination
 					if (!(noNegativeAnswers && myOps.answer < 0)) { // exclude negative intermediate answers if flagged to do so
-						workingList.add(myOps.answer);
-						ArrayList<Float> operands = new ArrayList<Float>();
-						operands.add(a);
-						operands.add(b);
-						results.add(new Result(operands,i,myOps.answer));
-						runAllAnswers(workingList, results);
-						workingList.remove(workingList.size()-1);
-						results.remove(results.size()-1);
+						//FIXED CODE SMELL - Extract Method
+						excludeNegativeIntermediateAnswers(a, b, workingList, results, myOps, i);
+						//END CODE SMELL
 					}
 				}
 			}		        
@@ -110,7 +101,35 @@ public class RunOperations {
 			}
 		}
 	}
-	
+
+	private void saveAndIncrementCorrectAnswer(float a, float b, ArrayList<Result> results, int i, Operations myOps) {
+		//FIXED CODE SMELL
+		addNewResultToResultList(a, b, results, i, myOps);
+		//END CODE SMELL
+		saveAResult(results);
+		results.remove(results.size()-1);
+		solutionCount++;
+	}
+
+	private void excludeNegativeIntermediateAnswers(float a, float b, ArrayList<Float> workingList, ArrayList<Result> results, Operations myOps, int i) {
+		workingList.add(myOps.answer);
+		//FIXED CODE SMELL
+		addNewResultToResultList(a, b, results, i, myOps);
+		//END CODE SMELL
+		runAllAnswers(workingList, results);
+		workingList.remove(workingList.size()-1);
+		results.remove(results.size()-1);
+	}
+
+	//FIXED CODE SMELL - Duplicated Code
+	private static void addNewResultToResultList(float a, float b, ArrayList<Result> results, int i, Operations myOps) {
+		ArrayList<Float> operands = new ArrayList<Float>();
+		operands.add(a);
+		operands.add(b);
+		results.add(new Result(operands, i, myOps.answer));
+	}
+	//END CODE SMELL
+
 	// Called by the above to save correct solutions -- also weeds out duplicates.
 	private void saveAResult(ArrayList<Result> results) {
 		String stringToSave = "";

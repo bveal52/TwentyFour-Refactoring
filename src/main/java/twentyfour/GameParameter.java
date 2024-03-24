@@ -1,13 +1,13 @@
 package twentyfour;
 
-public class Parameter {
+public class GameParameter {
 
     private int magicNumber = 0;
     private int numberOfIntegers;
     private int startingAt;
     private int endingAt;
 
-    public Parameter(int magicNumber, int numberOfIntegers, int startingAt, int endingAt) {
+    public GameParameter(int magicNumber, int numberOfIntegers, int startingAt, int endingAt) {
         this.magicNumber = magicNumber;
         this.numberOfIntegers = numberOfIntegers;
         this.startingAt = startingAt;
