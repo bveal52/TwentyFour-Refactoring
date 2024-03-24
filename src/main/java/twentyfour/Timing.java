@@ -19,33 +19,30 @@ public class Timing {
 			System.out.println(reportTime("Current", progress));
 		}
 	}
-	
+
+
+	//FIXED CODE SMELL - Switch Statement
 	public static String reportTime(String descriptor, String progress) {
+		TimingStrategy strategy;
 		runTime = ((System.nanoTime()-startTime)/1000000000.0); // in seconds
 		String returnValue = ""; 
 		if (runTime > 3600) {
-			int totalSeconds = (int)runTime;
-			int hours = totalSeconds / 3600;
-			int remainingSeconds = totalSeconds % 3600;
-			int minutes = remainingSeconds / 60;
-			int seconds = remainingSeconds % 60;
-			returnValue = String.format(descriptor+" runtime = %d:%2d:%2d", hours, minutes, seconds);
+			strategy = new HoursStrategy();
 		} else if (runTime > 60) {
-			int totalSeconds = (int)runTime;
-			int minutes = totalSeconds / 60;
-			int seconds = totalSeconds % 60;
-			returnValue = String.format(descriptor+" runtime = %d:%2d", minutes, seconds);
+			strategy = new MinutesStrategy();
 		} else if (runTime > 10) {
-			returnValue =  String.format(descriptor+" runtime = %d seconds", (int)runTime);
+			strategy = new SecondsStrategy();
 		} else if (runTime > 1) {
-			returnValue = String.format(descriptor+" runtime = %.1f seconds", runTime);
+			strategy = new TenthSecondsStrategy();
 		} else {
-			returnValue = String.format(descriptor+" runtime = %.2f seconds", runTime);
+			strategy = new MillisecondsStrategy();
 		}
 		if (!progress.equals("")) {
-			return returnValue + ", progressed through "+progress;
+			return strategy.formatTime(runTime, descriptor, progress) + ", progressed through "+ progress;
 		} else {
-			return returnValue;
+			return strategy.formatTime(runTime, descriptor, progress);
 		}
 	}
+
+	//END CODE SMELL - Switch Statement
 }
