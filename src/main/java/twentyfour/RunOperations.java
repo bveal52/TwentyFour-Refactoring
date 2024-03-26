@@ -89,13 +89,7 @@ private void tryAllOperations(float a, float b, ArrayList<Float> workingList, Ar
 			}
 			if (workingList.size() == 0) { // This is the final operation
 				if (Math.abs(myOps.answer-magicNumber) < closeToInteger) { // we have a correct answer
-					ArrayList<Float> operands = new ArrayList<Float>();
-					operands.add(a);
-					operands.add(b);
-					results.add(new Result(operands,i,myOps.answer));
-					saveAResult(results);
-					results.remove(results.size()-1);
-					solutionCount++;
+					saveAndIncrementCorrectAnswer(a, b, results, i, myOps);
 				} else { // a wrong answer
 //						results.add("Wrong answer");
 //						printAResult(results);
@@ -103,14 +97,7 @@ private void tryAllOperations(float a, float b, ArrayList<Float> workingList, Ar
 				}
 			} else { // we're not done yet, trying this combination
 				if (!(noNegativeAnswers && myOps.answer < 0)) { // exclude negative intermediate answers if flagged to do so
-					workingList.add(myOps.answer);
-					ArrayList<Float> operands = new ArrayList<Float>();
-					operands.add(a);
-					operands.add(b);
-					results.add(new Result(operands,i,myOps.answer));
-					runAllAnswers(workingList, results);
-					workingList.remove(workingList.size()-1);
-					results.remove(results.size()-1);
+					excludeNegativeIntermediateAnswers(a, b, workingList, results, myOps, i);
 				}
 			}
 		}
@@ -127,7 +114,7 @@ private void tryAllOperations(float a, float b, ArrayList<Float> workingList, Ar
 
 	//END CHANGE
 
-	private void saveAndIncrementCorrectAnswer(float a, float b, ArrayList<Result> results, int i, Operation myOps) {
+	private void saveAndIncrementCorrectAnswer(float a, float b, ArrayList<Result> results, int i, Operations myOps) {
 		//FIXED CODE SMELL
 		addNewResultToResultList(a, b, results, i, myOps);
 		//END CODE SMELL
@@ -136,7 +123,7 @@ private void tryAllOperations(float a, float b, ArrayList<Float> workingList, Ar
 		solutionCount++;
 	}
 
-	private void excludeNegativeIntermediateAnswers(float a, float b, ArrayList<Float> workingList, ArrayList<Result> results, Operation myOps, int i) {
+	private void excludeNegativeIntermediateAnswers(float a, float b, ArrayList<Float> workingList, ArrayList<Result> results, Operations myOps, int i) {
 		workingList.add(myOps.answer);
 		//FIXED CODE SMELL
 		addNewResultToResultList(a, b, results, i, myOps);
@@ -147,7 +134,7 @@ private void tryAllOperations(float a, float b, ArrayList<Float> workingList, Ar
 	}
 
 	//FIXED CODE SMELL - Duplicated Code
-	private static void addNewResultToResultList(float a, float b, ArrayList<Result> results, int i, Operation myOps) {
+	private static void addNewResultToResultList(float a, float b, ArrayList<Result> results, int i, Operations myOps) {
 		ArrayList<Float> operands = new ArrayList<Float>();
 		operands.add(a);
 		operands.add(b);
