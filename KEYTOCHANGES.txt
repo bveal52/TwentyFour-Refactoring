@@ -1,3 +1,7 @@
+TLDR: WHEN RUNNING INTEGRATION TESTS, RUN THEM INDIVIDUALLY. THEY WILL FAIL IF RUN TOGETHER. SORRY FOR THE INCONVENIENCE.
+
+
+
 Code Smells
 
 1. Primitive Obsession
@@ -87,8 +91,6 @@ HOW TO TEST:
 For the new feature:
 - Run the tests TwentyFourIntegrationTest.java INDIVIDUALLY to test the new feature. The tests run with the average operation included and excluded.
 - NOTE: Running them together will cause one of them to fail. I do not know why this is happening, but running them individually will show that they both work. Sorry for the inconvenience.
-- IF THEY ARE FAILING CONSISTENTLY: Go to ./datafiles and delete the files with an extension greater than 1. The tests should automatically delete files after they are run,
-but it may not work as expected.
 
 For unit tests:
 - OperationsTest tests the Operations class different operations

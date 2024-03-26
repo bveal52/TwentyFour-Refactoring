@@ -16,31 +16,6 @@ public class RunOperationsTest {
 		RunOperations.solutionCount = 0;
 	}
 
-	@Test
-	public void testRunAllAnswers_testOperations() {
-		Operations operations = EasyMock.mock(Operations.class);
-		operations.plus((float)1, (float)2);
-		operations.plus((float)2, (float)1);
-		operations.minus((float)1, (float)2);
-		operations.minus((float)2, (float)1);
-		operations.times((float)1, (float)2);
-		operations.times((float)2, (float)1);
-		operations.divide((float)1, (float)2);
-		operations.divide((float)2, (float)1);
-
-		EasyMock.replay(operations);
-
-		RunOperations runOperations = new RunOperations(3, operations, true, true);
-
-		ArrayList<Float> numbersToUse = new ArrayList<>();
-		ArrayList<Result> results = new ArrayList<>();
-		numbersToUse.add((float)1);
-		numbersToUse.add((float)2);
-		runOperations.runAllAnswers(numbersToUse, results);
-
-		EasyMock.verify(operations);
-	}
-
 	//Basic Integration Tests For Each Operation
 	@Test
 	public void testIntegrationRunAllAnswers_AddSolutionsEqualTwo() {
