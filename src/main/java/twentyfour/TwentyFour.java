@@ -142,10 +142,7 @@ public class TwentyFour {
 		for(int i = 0; i < numbersToUse.size(); i++) {
 			workingList.add((float)numbersToUse.get(i));			
 		}
-
-		//CHANGED FOR FEATURE
 		nextSet.runAllAnswers(workingList, results);
-		//END CHANGE
 		Timing.checkCurrentTime(nextNumber);
 		CountSolutions.addToSolutions(nextSet.numberOfAnswers());
 		//FIXED CODE SMELL - LARGE CLASS

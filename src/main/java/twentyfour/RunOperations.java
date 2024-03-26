@@ -57,7 +57,6 @@ public class RunOperations {
 
 //	 The other co-routine.  This one decides if we have a solution and also saves results, final or intermediate.
 private void tryAllOperations(float a, float b, ArrayList<Float> workingList, ArrayList<Result> results) {
-	//Operations myOps = new Operations();
 	Class<?> classObj = myOps.getClass();
 	Class[] arg = new Class[2];
 	arg[0] = Float.class;

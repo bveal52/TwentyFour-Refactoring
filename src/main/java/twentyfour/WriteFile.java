@@ -39,10 +39,12 @@ public class WriteFile {
 		}
 		String fileName = baseFileName+gameParams.getMagicNumber()+debugInfo+"for"+gameParams.getNumberOfIntegers()+"from"+gameParams.getStartingAt()+"to"+gameParams.getEndingAt();
 
+		//CHANGE FOR FEATURE
 		//if withAverage, append "withAverage" to the filename
 		if (gameParams.getWithAverage()) {
 			fileName += "withAverage";
 		}
+		//END CHANGE
 
 		int appendix = returnNextFileNameAppendix(fileName);
 
