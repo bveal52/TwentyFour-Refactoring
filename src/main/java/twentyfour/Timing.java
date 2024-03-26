@@ -6,12 +6,12 @@ public class Timing {
 	private static long lastReportTime;
 	private static double reportIntervalSeconds = 60.0;
 	private static double runTime;
-	
+
 	public static void startRun() {
 		startTime = System.nanoTime();
 		lastReportTime = startTime;
 	}
-	
+
 	public static void checkCurrentTime(String progress) {
 		double elapsedTime = (System.nanoTime() - lastReportTime)/1000000000.0;
 		if (elapsedTime > reportIntervalSeconds) { // Heartbeat report
@@ -20,29 +20,32 @@ public class Timing {
 		}
 	}
 
-
-	//FIXED CODE SMELL - Switch Statement
 	public static String reportTime(String descriptor, String progress) {
-		TimingStrategy strategy;
 		runTime = ((System.nanoTime()-startTime)/1000000000.0); // in seconds
-		String returnValue = ""; 
+		String returnValue = "";
 		if (runTime > 3600) {
-			strategy = new HoursStrategy();
+			int totalSeconds = (int)runTime;
+			int hours = totalSeconds / 3600;
+			int remainingSeconds = totalSeconds % 3600;
+			int minutes = remainingSeconds / 60;
+			int seconds = remainingSeconds % 60;
+			returnValue = String.format(descriptor+" runtime = %d:%2d:%2d", hours, minutes, seconds);
 		} else if (runTime > 60) {
-			strategy = new MinutesStrategy();
+			int totalSeconds = (int)runTime;
+			int minutes = totalSeconds / 60;
+			int seconds = totalSeconds % 60;
+			returnValue = String.format(descriptor+" runtime = %d:%2d", minutes, seconds);
 		} else if (runTime > 10) {
-			strategy = new SecondsStrategy();
+			returnValue =  String.format(descriptor+" runtime = %d seconds", (int)runTime);
 		} else if (runTime > 1) {
-			strategy = new TenthSecondsStrategy();
+			returnValue = String.format(descriptor+" runtime = %.1f seconds", runTime);
 		} else {
-			strategy = new MillisecondsStrategy();
+			returnValue = String.format(descriptor+" runtime = %.2f seconds", runTime);
 		}
 		if (!progress.equals("")) {
-			return strategy.formatTime(runTime, descriptor, progress) + ", progressed through "+ progress;
+			return returnValue + ", progressed through "+progress;
 		} else {
-			return strategy.formatTime(runTime, descriptor, progress);
+			return returnValue;
 		}
 	}
-
-	//END CODE SMELL - Switch Statement
 }

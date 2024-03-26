@@ -16,7 +16,7 @@ import java.util.*;
 public class WriteFileTest {
     @Test
     public void testOpenFile() {
-        WriteFile writeFile = new WriteFile(new GameParameter(24, 5, 1, 10));
+        WriteFile writeFile = new WriteFile(new GameParameter(24, 5, 1, 10, true, true, true));
         writeFile.openFile();
         assertTrue(new File(writeFile.getFullFileName()).exists(), "File should be opened");
         writeFile.closeFile(); // Close the file after testing
@@ -24,7 +24,7 @@ public class WriteFileTest {
 
     @Test
     public void testWriteToFile() {
-        WriteFile writeFile = new WriteFile(new GameParameter(24, 5, 1, 10));
+        WriteFile writeFile = new WriteFile(new GameParameter(24, 5, 1, 10, true, true, true));
         writeFile.openFile();
         writeFile.writeToFile("Test Data");
         writeFile.closeFile();
@@ -40,7 +40,7 @@ public class WriteFileTest {
 
     @Test
     public void testCloseFile() {
-        WriteFile writeFile = new WriteFile(new GameParameter(24, 5, 1, 10));
+        WriteFile writeFile = new WriteFile(new GameParameter(24, 5, 1, 10,true, true, true));
         writeFile.openFile();
         writeFile.closeFile();
         //check that there was not an exception thrown
@@ -50,7 +50,7 @@ public class WriteFileTest {
 
     @Test
     public void testReadDirectory() {
-        WriteFile writeFile = new WriteFile(new GameParameter(24, 5, 1, 10));
+        WriteFile writeFile = new WriteFile(new GameParameter(24, 5, 1, 10, true, true, true));
         writeFile.readDirectory("datafiles");
         assertFalse(WriteFile.fileTable.isEmpty(), "File list should not be empty");
     }

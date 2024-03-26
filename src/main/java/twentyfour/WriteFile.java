@@ -38,7 +38,14 @@ public class WriteFile {
 			debugInfo = "";
 		}
 		String fileName = baseFileName+gameParams.getMagicNumber()+debugInfo+"for"+gameParams.getNumberOfIntegers()+"from"+gameParams.getStartingAt()+"to"+gameParams.getEndingAt();
+
+		//if withAverage, append "withAverage" to the filename
+		if (gameParams.getWithAverage()) {
+			fileName += "withAverage";
+		}
+
 		int appendix = returnNextFileNameAppendix(fileName);
+
 		fullFileName = directoryName+"/"+fileName+"-"+appendix+extension;
 		try {
 			writer = new BufferedWriter(new FileWriter(fullFileName));
@@ -128,10 +135,20 @@ public class WriteFile {
 		}
 	}
 
+	public void writeNextNumberAndNextSet(String nextNumber, RunOperations nextSet) {
+		writeToFile(nextNumber +": "+ nextSet.numberOfAnswers()+" answers");
+		writeToFile(nextSet.buildAnswers());
+		if (TwentyFour.debugMode == 1) {
+			writeToFile("---------------\nSorted Answers:\n");
+			writeToFile(nextSet.buildSortedAnswers());
+		}
+	}
 
+
+	//ADDED FOR TESTING
 	public String getFullFileName() {
 		return fullFileName;
 	}
-
+	//END ADDED FOR TESTING
 	
 }
