@@ -13,14 +13,14 @@ public class Result {
 		this.operands = operands;
 		this.operationIndex = operationIndex;
 		this.result = result;
-		if (OperationsWithAverage.commutivity[operationIndex]) { // put the operands in order
+		if (Operations.commutivity[operationIndex]) { // put the operands in order
 			Collections.sort(this.operands);
 		}
 	}
 
 	//CHANGE FOR FEATURE
 	public String infix2OperandResult() {
-		if(OperationsWithAverage.operationSymbols[operationIndex].equals("avg")) {
+		if(Operations.operationSymbols[operationIndex].equals("avg")) {
 			return formatAverage();
 		} else {
 			return formatNormalOp();
@@ -32,7 +32,7 @@ public class Result {
 	}
 
 	private String formatNormalOp() {
-		return tryRounding(operands.get(0)) + " " + OperationsWithAverage.operationSymbols[operationIndex] + " " +
+		return tryRounding(operands.get(0)) + " " + Operations.operationSymbols[operationIndex] + " " +
 				tryRounding(operands.get(1)) + " " + "=" + " " + tryRounding(result);
 	}
 
