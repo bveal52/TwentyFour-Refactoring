@@ -1,6 +1,6 @@
 TLDR: WHEN RUNNING INTEGRATION TESTS, RUN THEM INDIVIDUALLY. THEY WILL FAIL IF RUN TOGETHER. SORRY FOR THE INCONVENIENCE.
 
-
+If you are having trouble with zip file, here is link to Repo: https://github.com/bveal52/TwentyFour-Refactoring
 
 Code Smells
 
