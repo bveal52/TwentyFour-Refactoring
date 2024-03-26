@@ -69,7 +69,7 @@ public class TwentyFour {
 		writeFile = new WriteFile(gameParameter);
 		twentyFourUI = new TwentyFourUI();
 
-		if(withAverage) {
+		if(gameParameter.getWithAverage()) {
 			operations = new Operations(true);
 		} else {
 			operations = new Operations(false);

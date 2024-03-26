@@ -27,8 +27,6 @@ public class RunOperationsTest {
 		operations.times((float)2, (float)1);
 		operations.divide((float)1, (float)2);
 		operations.divide((float)2, (float)1);
-//		operations.average((float)1, (float)2);
-//		operations.average((float)2, (float)1);
 
 		EasyMock.replay(operations);
 
@@ -97,7 +95,7 @@ public class RunOperationsTest {
 		numbersToUse.add((float)1);
 		runOperations.runAllAnswers(numbersToUse, results);
 
-		assertEquals(1, RunOperations.solutionCount);
+		assertEquals(3, RunOperations.solutionCount);
 	}
 
 	@Test

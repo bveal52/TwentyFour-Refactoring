@@ -1,0 +1,95 @@
+Code Smells
+
+1. Primitive Obsession
+
+Original Description:
+In WriteFile.java, primitives are largely used with no specialized classes to represent
+data. This is a case of primitive obsession. In WriteFile.java, the multiple primitive instance
+variables are encapsulated into the file, showing good use of Object Oriented principles.
+However, despite this positive aspect, the primitive obsession leads to less maintainable and
+flexible code and would make future changes to game elements such as player scores or
+operations harder. This is also an issue in TwentyFour.java.
+
+Solution:
+Make a class to represent the primitive data. This class is currently a data class, which does also possibly implement
+a code smell for the future. But for now, it is a good solution to the primitive obsession, and also for the Long Parameter List.
+The change for this was made in WriteFile.java, where an instance of GameParameters was created to hold the primitive data.
+
+2. Long Parameter List
+
+Original Description:
+WriteFile.java has a large list of parameters for creating an instance of the class. This is
+good planning on behalf of the designer to include everything the class will need, however, the
+way they went about this could be refactored to be more flexible. The main problem with the
+current list of 4 parameters on line 21 is that if a parameter is no longer necessary or new ones
+are needed, one would need to update the method itself and all instances of the method. This
+makes future changes more difficult and error prone.
+
+Solution:
+This is also covered by the creation of a GameParameters class to hold parameters for the game in WriteFile.java.
+This class is a data class, which could also be a code smell, but for now it is a good solution to the Long Parameter List that Owen pointed out.
+The change for this was made in WriteFile.java, where an instance of GameParameters was created to hold the primitive data and passed into the constructor.
+It was also changed in TwentyFour.java, where the instance of WriteFile was created with the new GameParameters instance.
+
+3. Large Class
+
+Original Description:
+In TwentyFour.java, the class attempts to facilitate the entire logic of the game,
+Including the logic of the game and the UI. While it successfully encapsulates the game's
+functionalities, this approach results in a class that is not flexible and is difficult to maintain. The
+large class code smell is seen here. The single TwentyFour class contains many responsibilities
+that should be broken up into other classes.
+
+Solution:
+Split the class into 2 main classes, TwentyFourUI and TwentyFour. Also moved some functionality for writing files back to WriteFile.java in the processChanges() method.
+This was done to separate the UI from the game logic, and to make the code more maintainable and flexible.
+
+4. Duplicated Code
+
+Original Description:
+In RunOperations.java, the tryAllOperations() function successfully finds all operations
+on the set of numbers that reach the target number, 24. However, despite achieving its
+functionality, the function has duplicated code, starting at line 76. The if and else statements
+repeat the same structure, variables, and a large amount of functionality. This is a problem
+because it contributes to tryAllOperations() long length, which is a code smell by itself. The
+duplicated code is also a problem because it allows for the possibility of introducing errors by
+forgetting to change the duplicated code in both places. Despite this issue, the function can be
+refactored and achieve its purpose successfully.
+
+Solution:
+The duplicated code was refactored into a new methods, saveAndIncrementCorrectAnswer(), excludeNegativeIntermediateAnswers(), and
+addNewResultToResultList(), which is called in the tryAllOperations() method ot better readability and maintainability.
+
+
+Feature:
+
+Changed Classes:
+- Operations.java
+Description:
+Altered the Operations class to add a constructor that takes a boolean to either include or exclude the average operation.
+- Result.java
+Description:
+Altered the formatting to accurately display the average operation as avg(num, num).
+- RunOperations.java
+Description:
+Added Operation to the constructor of RunOperations
+Altered the tryAllOperations() method to use the passed in Operations object that may contain the average operation
+- TwentyFour.java
+Description:
+Added a boolean to GameParameters to include or exclude the average operation
+Added testing constructors for the Integration tests
+- WriteFile.java
+Description:
+Added a "withAverage" extension to the file name if the average operation is included in the operations
+
+HOW TO TEST:
+
+For the new feature:
+- Run the tests TwentyFourIntegrationTest.java INDIVIDUALLY to test the new feature. The tests run with the average operation included and excluded.
+- NOTE: Running them together will cause one of them to fail. I do not know why this is happening, but running them individually will show that they both work. Sorry for the inconvenience.
+- IF THEY ARE FAILING CONSISTENTLY: Go to ./datafiles and delete the files with an extension greater than 1. The tests should automatically delete files after they are run,
+but it may not work as expected.
+
+For unit tests:
+- OperationsTest tests the Operations class different operations
+- RunOperationsTest tests the RunOperations class with different operations
