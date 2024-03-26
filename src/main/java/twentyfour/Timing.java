@@ -6,12 +6,12 @@ public class Timing {
 	private static long lastReportTime;
 	private static double reportIntervalSeconds = 60.0;
 	private static double runTime;
-	
+
 	public static void startRun() {
 		startTime = System.nanoTime();
 		lastReportTime = startTime;
 	}
-	
+
 	public static void checkCurrentTime(String progress) {
 		double elapsedTime = (System.nanoTime() - lastReportTime)/1000000000.0;
 		if (elapsedTime > reportIntervalSeconds) { // Heartbeat report
@@ -19,10 +19,10 @@ public class Timing {
 			System.out.println(reportTime("Current", progress));
 		}
 	}
-	
+
 	public static String reportTime(String descriptor, String progress) {
 		runTime = ((System.nanoTime()-startTime)/1000000000.0); // in seconds
-		String returnValue = ""; 
+		String returnValue = "";
 		if (runTime > 3600) {
 			int totalSeconds = (int)runTime;
 			int hours = totalSeconds / 3600;

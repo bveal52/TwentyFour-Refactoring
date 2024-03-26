@@ -4,6 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class RunOperations {
 
@@ -17,14 +20,21 @@ public class RunOperations {
 	public static int nonDuplicatedSolutionCount = 0;
 	public static float closeToInteger = .0001f;
 
-	private ArrayList<String> answers = new ArrayList<String>(); // answers as strings for this set of numbers
+	//CHANGE FOR FEATURE
+	private Operations myOps;
+
+	//END CHANGE
+	protected ArrayList<String> answers = new ArrayList<String>(); // answers as strings for this set of numbers
 	public ArrayList<String> sortedAnswers = new ArrayList<String>(); // with operations sorted -- Not the correct answers, just to check for dup's	
 
-	public RunOperations(int magicNumber, boolean noNegativeAnswers, boolean noEquivalentsExceptForOrder) {
+	//CHANGE FOR FEATURE
+	public RunOperations(int magicNumber, Operations myOps, boolean noNegativeAnswers, boolean noEquivalentsExceptForOrder) {
 		this.magicNumber = magicNumber;
+		this.myOps = myOps;
 		this.noNegativeAnswers = noNegativeAnswers;
 		this.noEquivalentsExceptForOrder = noEquivalentsExceptForOrder;
 	}
+	//END CHANGE
 
 	// Initiates the action for the co-routines -- this method picks the next operation to try and does it.
 	public void runAllAnswers(ArrayList<Float> numbersToUse, ArrayList<Result> results) {
@@ -43,74 +53,94 @@ public class RunOperations {
 		}
 	}
 
-	// The other co-routine.  This one decides if we have a solution and also saves results, final or intermediate.
-	private void tryAllOperations(float a, float b, ArrayList<Float> workingList, ArrayList<Result> results) {
-		Operations myOps = new Operations();
-		Class<?> classObj = myOps.getClass();
-		Class[] arg = new Class[2];  
-		arg[0] = Float.class;  
-		arg[1] = Float.class;  
-		Method nextMethod = null;
-		for (int i=0; i< myOps.myOperations.length; i++) {
-			String nextOp = myOps.myOperations[i];
-			try {
-				nextMethod = classObj.getDeclaredMethod(nextOp, arg);
-			} catch (NoSuchMethodException | SecurityException e1) {
-				System.out.println(">> Check operations list in Operations.java versus the op number called here = #"+i);
-				e1.printStackTrace();
-				System.exit(1);
-			}
-			try {
-				// invoke the function using this class obj
-				// pass in the class object
-				nextMethod.invoke(myOps, a, b); 
+	//CHANGE FOR FEATURE
+
+//	 The other co-routine.  This one decides if we have a solution and also saves results, final or intermediate.
+private void tryAllOperations(float a, float b, ArrayList<Float> workingList, ArrayList<Result> results) {
+	Class<?> classObj = myOps.getClass();
+	Class[] arg = new Class[2];
+	arg[0] = Float.class;
+	arg[1] = Float.class;
+	Method nextMethod = null;
+	for (int i=0; i< myOps.myOperations.length; i++) {
+		String nextOp = myOps.myOperations[i];
+		try {
+			nextMethod = classObj.getDeclaredMethod(nextOp, arg);
+		} catch (NoSuchMethodException | SecurityException e1) {
+			System.out.println(">> Check operations list in Operations.java versus the op number called here = #"+i);
+			e1.printStackTrace();
+			System.exit(1);
+		}
+		try {
+			// invoke the function using this class obj
+			// pass in the class object
+			nextMethod.invoke(myOps, a, b);
 //				System.out.print("DB: At "+DBPoint+", Result for "+a+myOps.operationSymbols[i]+b+"="+myOps.answer+", workingList.size() = "+workingList.size()+", contents:");
 //				for (float nextNumber : workingList) {
 //					System.out.print(" "+nextNumber);
 //				}
 //				System.out.println();
-				DBPoint++;
-				if (DBStoppingPoint != 0 && DBPoint >= DBStoppingPoint) {
-					System.out.println("DB: Hit stopping point of "+DBStoppingPoint);
-					System.out.println("DB: Solution count is "+solutionCount);
-					System.exit(1);
-				}
-				if (workingList.size() == 0) { // This is the final operation
-					if (Math.abs(myOps.answer-magicNumber) < closeToInteger) { // we have a correct answer
-						ArrayList<Float> operands = new ArrayList<Float>();
-						operands.add(a);
-						operands.add(b);
-						results.add(new Result(operands,i,myOps.answer));
-						saveAResult(results);
-						results.remove(results.size()-1);
-						solutionCount++;
-					} else { // a wrong answer
-//						results.add("Wrong answer");
-//						printAResult(results);
-						continue;
-					}
-				} else { // we're not done yet, trying this combination
-					if (!(noNegativeAnswers && myOps.answer < 0)) { // exclude negative intermediate answers if flagged to do so
-						workingList.add(myOps.answer);
-						ArrayList<Float> operands = new ArrayList<Float>();
-						operands.add(a);
-						operands.add(b);
-						results.add(new Result(operands,i,myOps.answer));
-						runAllAnswers(workingList, results);
-						workingList.remove(workingList.size()-1);
-						results.remove(results.size()-1);
-					}
-				}
-			}		        
-			catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) 
-			{
-				System.out.println(">> We failed to invoke method #"+i);
-				System.out.println(e.getCause());
+			DBPoint++;
+			if (DBStoppingPoint != 0 && DBPoint >= DBStoppingPoint) {
+				System.out.println("DB: Hit stopping point of "+DBStoppingPoint);
+				System.out.println("DB: Solution count is "+solutionCount);
 				System.exit(1);
 			}
+			if (workingList.size() == 0) { // This is the final operation
+				if (Math.abs(myOps.answer-magicNumber) < closeToInteger) { // we have a correct answer
+					saveAndIncrementCorrectAnswer(a, b, results, i, myOps);
+				} else { // a wrong answer
+//						results.add("Wrong answer");
+//						printAResult(results);
+					continue;
+				}
+			} else { // we're not done yet, trying this combination
+				if (!(noNegativeAnswers && myOps.answer < 0)) { // exclude negative intermediate answers if flagged to do so
+					excludeNegativeIntermediateAnswers(a, b, workingList, results, myOps, i);
+				}
+			}
+		}
+		catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e)
+		{
+			System.out.println(">> We failed to invoke method #"+i);
+			System.out.println(e.getCause());
+			System.exit(1);
 		}
 	}
-	
+}
+
+
+
+	//END CHANGE
+
+	private void saveAndIncrementCorrectAnswer(float a, float b, ArrayList<Result> results, int i, Operations myOps) {
+		//FIXED CODE SMELL
+		addNewResultToResultList(a, b, results, i, myOps);
+		//END CODE SMELL
+		saveAResult(results);
+		results.remove(results.size()-1);
+		solutionCount++;
+	}
+
+	private void excludeNegativeIntermediateAnswers(float a, float b, ArrayList<Float> workingList, ArrayList<Result> results, Operations myOps, int i) {
+		workingList.add(myOps.answer);
+		//FIXED CODE SMELL
+		addNewResultToResultList(a, b, results, i, myOps);
+		//END CODE SMELL
+		runAllAnswers(workingList, results);
+		workingList.remove(workingList.size()-1);
+		results.remove(results.size()-1);
+	}
+
+	//FIXED CODE SMELL - Duplicated Code
+	private static void addNewResultToResultList(float a, float b, ArrayList<Result> results, int i, Operations myOps) {
+		ArrayList<Float> operands = new ArrayList<Float>();
+		operands.add(a);
+		operands.add(b);
+		results.add(new Result(operands, i, myOps.answer));
+	}
+	//END CODE SMELL
+
 	// Called by the above to save correct solutions -- also weeds out duplicates.
 	private void saveAResult(ArrayList<Result> results) {
 		String stringToSave = "";

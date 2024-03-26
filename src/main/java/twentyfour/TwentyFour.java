@@ -1,8 +1,7 @@
 package twentyfour;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 
 /*
  *  This is a new and improved "TwentyFour" game, written in June, 2021.  It has better logic and OO properties
@@ -31,59 +30,103 @@ public class TwentyFour {
 	// These parameters are set by the user to make this logic solve slightly different problems:
 	private int numberOfIntegers = 4;
 	private int startingAt = 1;
-	private int endingAt = 10;
+	private int endingAt = 4;
 	private int magicNumber = 24;
 	private boolean noNegativeAnswers = true; // If magicNumber is positive, these are essentially duplicate solutions
 	private boolean noEquivalentsExceptForOrder = true; // If the only difference is which is done first, weed these out
+
+	private boolean withAverage = true; // If true, the average of two numbers is also considered a number to use
+	GameParameter gameParameter;
 	
-	private WriteFile writeFile;
+	private final WriteFile writeFile;
+
+	private final TwentyFourUI twentyFourUI;
 	private int totalNumberCombinations = 0;
+
+	private Operations operations;
 		
 	public static Integer debugMode = 0; // 0 = normal. 1 = use just one number set and do some special analysis
-	private int[] testSet = {3, 3, 2, 1};
-	
+	private int[] testSet = {1,2,3,4};
+
+	//CHANGE FOR FEATURE
+	public TwentyFour() {
+		gameParameter = new GameParameter(magicNumber, numberOfIntegers, startingAt, endingAt, noNegativeAnswers, noEquivalentsExceptForOrder, withAverage);
+		//FIXED CODE SMELL - Long Parameter List
+		writeFile = new WriteFile(gameParameter);
+		//END CODE SMELL
+		twentyFourUI = new TwentyFourUI();
+
+		if(withAverage) {
+			operations = new Operations(true);
+		} else {
+			operations = new Operations(false);
+		}
+	}
+
+	//INTRODUCED FOR TESTING ONLY
+	public TwentyFour(int numberOfIntegers, int startingAt, int endingAt, int magicNumber, boolean noNegativeAnswers, boolean noEquivalentsExceptForOrder, boolean withAverage) {
+		gameParameter = new GameParameter(magicNumber, numberOfIntegers, startingAt, endingAt, noNegativeAnswers, noEquivalentsExceptForOrder, withAverage);
+		writeFile = new WriteFile(gameParameter);
+		twentyFourUI = new TwentyFourUI();
+
+		if(gameParameter.getWithAverage()) {
+			operations = new Operations(true);
+		} else {
+			operations = new Operations(false);
+		}
+	}
+
+	//END CHANGE
+
+
+	//FIX CODE SMELL - LARGE CLASS
 	// Picks the successive number sets and calls the process to run those, below.
 	private void runGame() {
 		ArrayList<Integer> numbersToUse = new ArrayList<Integer>();
 		if (debugMode == 1) {
-			for (int i=0; i<numberOfIntegers;i++) {
+			for (int i=0; i<gameParameter.getNumberOfIntegers();i++) {
 				numbersToUse.add(testSet[i]);
 			}
 		} else { // normal mode
-			for (int i=0; i<numberOfIntegers;i++) {
-				numbersToUse.add(startingAt);
+			for (int i=0; i<gameParameter.getNumberOfIntegers();i++) {
+				numbersToUse.add(gameParameter.getStartingAt());
 			}
 		}
 		boolean done = false;
 		while (!done) {
 			processNumberChoices(numbersToUse);
-			if (debugMode == 1) {
-				done = true; // just run the designated set of numbers
-			} else {
-				for (int posn = numberOfIntegers-1; posn >= 0; posn--) { // Go on to next number combination
-					int currentInt = numbersToUse.get(posn);
-					if (posn == 0) { // no additional restriction on what value can be
-						if (currentInt < endingAt) {
-							currentInt++;
-							numbersToUse.set(posn, currentInt);
-							break;
-						} else {
-							numbersToUse.set(posn, startingAt);
-							if (posn == 0) done = true;
-						}
-					} else { // additional restriction is that the values are in non-ascending order, to avoid duplication
-						if (currentInt < endingAt && currentInt < numbersToUse.get(posn-1)) {
-							currentInt++;
-							numbersToUse.set(posn, currentInt);
-							break;
-						} else {
-							numbersToUse.set(posn, startingAt);
-							if (posn == 0) done = true;
-						}
+			done = updateNumberSet(done, numbersToUse);
+		}
+	}
+
+	private boolean updateNumberSet(boolean done, ArrayList<Integer> numbersToUse) {
+		if (debugMode == 1) {
+			done = true; // just run the designated set of numbers
+		} else {
+			for (int posn = gameParameter.getNumberOfIntegers()-1; posn >= 0; posn--) { // Go on to next number combination
+				int currentInt = numbersToUse.get(posn);
+				if (posn == 0) { // no additional restriction on what value can be
+					if (currentInt < gameParameter.getEndingAt()) {
+						currentInt++;
+						numbersToUse.set(posn, currentInt);
+						break;
+					} else {
+						numbersToUse.set(posn, gameParameter.getStartingAt());
+						if (posn == 0) done = true;
+					}
+				} else { // additional restriction is that the values are in non-ascending order, to avoid duplication
+					if (currentInt < gameParameter.getEndingAt() && currentInt < numbersToUse.get(posn-1)) {
+						currentInt++;
+						numbersToUse.set(posn, currentInt);
+						break;
+					} else {
+						numbersToUse.set(posn, gameParameter.getStartingAt());
+						if (posn == 0) done = true;
 					}
 				}
 			}
 		}
+		return done;
 	}
 
 	// Processes a particular number set, including writing it to a common file.
@@ -93,7 +136,7 @@ public class TwentyFour {
 		for (int number : numbersToUse) {
 			nextNumber += number+" ";
 		}
-		RunOperations nextSet = new RunOperations(magicNumber, noNegativeAnswers, noEquivalentsExceptForOrder);
+		RunOperations nextSet = new RunOperations(gameParameter.getMagicNumber(), operations, gameParameter.getNoNegativeAnswers(), gameParameter.getNoEquivalentsExceptForOrder());
 		ArrayList<Result> results = new ArrayList<Result>();
 		ArrayList<Float> workingList = new ArrayList<Float>();
 		for(int i = 0; i < numbersToUse.size(); i++) {
@@ -102,43 +145,55 @@ public class TwentyFour {
 		nextSet.runAllAnswers(workingList, results);
 		Timing.checkCurrentTime(nextNumber);
 		CountSolutions.addToSolutions(nextSet.numberOfAnswers());
-		writeFile.writeToFile(nextNumber+": "+nextSet.numberOfAnswers()+" answers");
-		writeFile.writeToFile(nextSet.buildAnswers());
-		if (debugMode == 1) {
-			writeFile.writeToFile("---------------\nSorted Answers:\n");
-			writeFile.writeToFile(nextSet.buildSortedAnswers());			
-		}
+		//FIXED CODE SMELL - LARGE CLASS
+		writeFile.writeNextNumberAndNextSet(nextNumber, nextSet);
+		//END CODE SMELL
 	}
+
 
 	// Initializes file writing and starts the successive number-set action, above.
 	public static void main(String[] args) {
-		Timing.startRun();
-		TwentyFour myGame = new TwentyFour();
-		if (!myGame.validateParameters()) System.exit(1); // see if parameters make sense
-		myGame.writeFile = new WriteFile(myGame.magicNumber, myGame.numberOfIntegers, myGame.startingAt, myGame.endingAt);
-		myGame.writeFile.openFile();
-		myGame.runGame();
-		String closingMessage = Timing.reportTime("Total time", "")+"\n";
-		closingMessage += "Summary results for magic number "+myGame.magicNumber+", with "+myGame.numberOfIntegers+" integers "+
-				" ranging from "+myGame.startingAt+" to "+myGame.endingAt+",\n negative intermediate answers = "+(!myGame.noNegativeAnswers)+
-				", equivalent intermediate results in different orders = "+(!myGame.noEquivalentsExceptForOrder)+" :\n";
-		closingMessage += "Total number combinations = "+myGame.totalNumberCombinations+", solutions found = "+RunOperations.solutionCount+
-				", non-duplicated = "+RunOperations.nonDuplicatedSolutionCount;
-		myGame.writeFile.writeToFile(closingMessage);
-		String analysisMessage = "How many no. combos with each no. of answers:\nno. answers,how many\n";
-		analysisMessage += CountSolutions.showSolutionCounts();
-		myGame.writeFile.writeToFile(analysisMessage);
-		myGame.writeFile.closeFile();
-		System.out.println(closingMessage);
-		System.out.println(analysisMessage);
+		run();
 	}
 
-	// Since the user can change the parameters shown at the top of this file, we check that they make sense
-	private boolean validateParameters() {
-		if (this.numberOfIntegers < 2 || this.numberOfIntegers > 6) {
-			System.out.println(">> Unlikely we can solve a problem with numberOfIntegers = "+this.numberOfIntegers);
-			return false;
-		}
-		return true;
+
+	//CHANGE FOR FEATURE TESTING
+	public static void run() {
+		Timing.startRun();
+		TwentyFour myGame = new TwentyFour();
+		if (!myGame.twentyFourUI.validateParameters(myGame.gameParameter)) System.exit(1); // see if parameters make sense
+		myGame.writeFile.openFile();
+		myGame.runGame();
+
+		String closingMessage = myGame.twentyFourUI.generateClosingMessage(myGame.gameParameter, myGame.totalNumberCombinations);
+		myGame.writeFile.writeToFile(closingMessage);
+
+		String analysisMessage = myGame.twentyFourUI.generateAnalysisMessage(myGame.gameParameter);
+		myGame.writeFile.writeToFile(analysisMessage);
+		myGame.writeFile.closeFile();
+
+		myGame.twentyFourUI.printClosingAndAnalysis(closingMessage, analysisMessage);
 	}
+
+	public static void runTest(int numberOfIntegers, int startingAt, int endingAt, int magicNumber, boolean noNegativeAnswers, boolean noEquivalentsExceptForOrder, boolean withAverage) {
+		Timing.startRun();
+		TwentyFour myGame = new TwentyFour(numberOfIntegers, startingAt, endingAt, magicNumber, noNegativeAnswers, noEquivalentsExceptForOrder, withAverage);
+		if (!myGame.twentyFourUI.validateParameters(myGame.gameParameter)) System.exit(1); // see if parameters make sense
+		myGame.writeFile.openFile();
+		myGame.runGame();
+
+		String closingMessage = myGame.twentyFourUI.generateClosingMessage(myGame.gameParameter, myGame.totalNumberCombinations);
+		myGame.writeFile.writeToFile(closingMessage);
+
+		String analysisMessage = myGame.twentyFourUI.generateAnalysisMessage(myGame.gameParameter);
+		myGame.writeFile.writeToFile(analysisMessage);
+		myGame.writeFile.closeFile();
+
+		myGame.twentyFourUI.printClosingAndAnalysis(closingMessage, analysisMessage);
+	}
+
+	//END FIX BAD CODE SMELL - Large Class
+
+	//END CHANGE
+
 }

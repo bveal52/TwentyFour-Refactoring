@@ -10,22 +10,25 @@ public class WriteFile {
 
 	private String directoryName = "datafiles";
 	private BufferedWriter writer;
-	private int magicNumber = 0;
-	private int numberOfIntegers;
-	private int startingAt;
-	private int endingAt;
+
+	//FIXED CODE SMELL - Primitive Obsession
+	private GameParameter gameParams;
+
+	//END CODE SMELL
+
 	private String baseFileName = "Solutions";
 	private String extension = ".txt";
 	public static ArrayList<String> fileTable = new ArrayList<String>(); // List to reach for in post-run validations
 	public static int fileIndex = 0;
 	private String fullFileName;
-	
-	public WriteFile(int magicNumber, int numberOfIntegers, int startingAt, int endingAt) {
-		this.magicNumber = magicNumber;
-		this.numberOfIntegers = numberOfIntegers;
-		this.startingAt = startingAt;
-		this.endingAt = endingAt;
+
+	//FIXED CODE SMELL - Long Parameter List
+
+	public WriteFile(GameParameter gameParams) {
+		this.gameParams = gameParams;
 	}
+
+	//END CODE SMELL
 	
 	public void openFile() {
 		String debugInfo;
@@ -34,8 +37,17 @@ public class WriteFile {
 		} else {
 			debugInfo = "";
 		}
-		String fileName = baseFileName+magicNumber+debugInfo+"for"+numberOfIntegers+"from"+startingAt+"to"+endingAt;
+		String fileName = baseFileName+gameParams.getMagicNumber()+debugInfo+"for"+gameParams.getNumberOfIntegers()+"from"+gameParams.getStartingAt()+"to"+gameParams.getEndingAt();
+
+		//CHANGE FOR FEATURE
+		//if withAverage, append "withAverage" to the filename
+		if (gameParams.getWithAverage()) {
+			fileName += "withAverage";
+		}
+		//END CHANGE
+
 		int appendix = returnNextFileNameAppendix(fileName);
+
 		fullFileName = directoryName+"/"+fileName+"-"+appendix+extension;
 		try {
 			writer = new BufferedWriter(new FileWriter(fullFileName));
@@ -45,7 +57,7 @@ public class WriteFile {
 			System.exit(1);
 		}
 		try {
-			writer.write("Solutions for magic number "+magicNumber+"\n");
+			writer.write("Solutions for magic number "+gameParams.getMagicNumber()+"\n");
 		} catch (IOException e) {
 			System.out.println(">> Error writing to file"+completeErrorMessage());
 			e.printStackTrace();
@@ -125,5 +137,20 @@ public class WriteFile {
 		}
 	}
 
+	public void writeNextNumberAndNextSet(String nextNumber, RunOperations nextSet) {
+		writeToFile(nextNumber +": "+ nextSet.numberOfAnswers()+" answers");
+		writeToFile(nextSet.buildAnswers());
+		if (TwentyFour.debugMode == 1) {
+			writeToFile("---------------\nSorted Answers:\n");
+			writeToFile(nextSet.buildSortedAnswers());
+		}
+	}
+
+
+	//ADDED FOR TESTING
+	public String getFullFileName() {
+		return fullFileName;
+	}
+	//END ADDED FOR TESTING
 	
 }
